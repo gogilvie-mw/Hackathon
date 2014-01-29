@@ -5,30 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Collections;
-
+using System.Configuration;
+using System.Text.RegularExpressions;
 
 
 namespace Hackathon
 {
     class Program
     {
-        private DateTime dateFileModified;
-
-        struct IISFile
-        {
-            public string FileName;
-            public DateTime DateModified;
-        }
-
-        //Represents all important data in line of the IIS file.
-        struct RowEntry
-        {
-            public string ServerIP;
-            public string EmployeeUserName;
-            public string AppName;
-            public int ResponseCode;
-            public DateTime accessTime;
-        }
 
         //Reads file line-by-line from top to bottom. Returns each line.
         private void readFile(string fileName)
@@ -38,11 +22,37 @@ namespace Hackathon
                 using (StreamReader sr = new StreamReader(fileName))
                 {
                     String line;
+                    int count = 0;
 
                     while ((line = sr.ReadLine()) != null)
                     {
-                        //Comment out the line below when not testing.
-                        Console.WriteLine(line);
+                        if (count > 50)
+                            break;
+
+                        count++;
+
+                        Match safeLine = Regex.Match(line, @"^(\d{4}\-\d{2}\-\d{2})");
+
+                        if (safeLine.Success)
+                        {
+
+                            Match m = Regex.Match(line, @"^(\d{4}\-\d{2}\-\d{2})\s(\d{2}:\d{2}:\d{2})\s(\w+)\s((\d{1,3}\.){3}\d{1,3})[\w+,\s]*((\/\w+){1,}\.\w{2,4})((\s[-,\S]){1,}.*)");
+
+                            if (m.Success)
+                            {  
+                                string date = m.Groups[1].Value;
+                                string time = m.Groups[2].Value;
+                                string dir = m.Groups[3].Value;
+                                string serverIP = m.Groups[4].Value;
+                                string res = m.Groups[6].Value;
+                                Console.WriteLine(date + " " + time + " " + dir + " " + serverIP + " " + res);
+                            }
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("Line did not match!");
+                        }
                     }
 
                 }
@@ -56,37 +66,49 @@ namespace Hackathon
         }
 
         //Returns the date a file was last modified.
-        private DateTime GetDateModified(String fileName)
-        {
-            return File.GetLastWriteTime(fileName);
-        }
+        //private DateTime GetDateModified(String fileName)
+        //{
+        //    return File.GetLastWriteTime(fileName);
+        //}
 
-        //Checks if the list of files already exists in our database. Prints a list of files in a directory.
-        private ArrayList GetFileNamesFromDirectory(String directoryName)
-        {
-            var fileList = new ArrayList();
+        ////Checks if the list of files already exists in our database. Prints a list of files in a directory.
+        //private ArrayList GetFileNamesFromDirectory(String directoryName)
+        //{
+        //    var fileList = new ArrayList();
 
+        //    DirectoryInfo di = new DirectoryInfo(directoryName); 
 
-            DirectoryInfo di = new DirectoryInfo(directoryName);
+        //    foreach (var fi in di.GetFiles())
+        //    {
+        //        fileList.Add(fi);
+        //        Console.WriteLine(fi.Name);
+        //    }
 
-            foreach (var fi in di.GetFiles())
-            {
-                fileList.Add(fi);
-                Console.WriteLine(fi.Name);
-            }
-
-            return fileList;
-        }
+        //    return fileList;
+        //}
 
         static void Main(string[] args)
         {
-            Program p = new Program();
+            string [] appKeys = ConfigurationManager.AppSettings.AllKeys;
+ 
+            //Program p = new Program();
 
-            //p.readFile(@"C:\Visual Studio\Hackathon\Hackathon\testfile.txt");
+            //foreach (string s in appKeys)   //int i = 0; i < appKeys.Length; i++)
+            //{
+            //    Console.Write("Key: " + s); 
+            //    p.GetFileNamesFromDirectory(ConfigurationManager.AppSettings[s]);
+            //}
+
+          
+
+            //p.readFile(@"C:\Visual Studio\Hackathon\Hackathon\Enterprise_IIS_Logs.txt");
             //DateTime d = p.GetDateModified(@"C:\Users\gawaineo\Desktop\Hackathon\vapp02\W3SVC1078817113\ex130723.log");
             //Console.WriteLine(d);
 
-            p.GetFileNamesFromDirectory(@"C:\Users\gawaineo\Desktop\Hackathon\vapp02\W3SVC1078817113");
+            //p.GetFileNamesFromDirectory(@"C:\Users\gawaineo\Desktop\Hackathon\vapp02\W3SVC1078817113");
+
+            IISLog psr = new IISLog();
+            psr.ParsingFile(@"C:\Visual Studio\Hackathon\Hackathon\Enterprise_IIS_Logs.txt");
 
             Console.WriteLine("\n\nPress Enter to continue...");
             Console.ReadLine();
