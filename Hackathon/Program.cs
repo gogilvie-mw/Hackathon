@@ -90,14 +90,16 @@ namespace Hackathon
         static void Main(string[] args)
         {
             string [] appKeys = ConfigurationManager.AppSettings.AllKeys;
+            ArrayList dirList = new ArrayList();
+
  
             //Program p = new Program();
 
-            //foreach (string s in appKeys)   //int i = 0; i < appKeys.Length; i++)
-            //{
-            //    Console.Write("Key: " + s); 
-            //    p.GetFileNamesFromDirectory(ConfigurationManager.AppSettings[s]);
-            //}
+            foreach (string s in appKeys)   //int i = 0; i < appKeys.Length; i++)
+            {
+                //Console.Write("Key: " + s);
+                dirList.Add(ConfigurationManager.AppSettings[s]);
+            }
 
           
 
@@ -108,7 +110,12 @@ namespace Hackathon
             //p.GetFileNamesFromDirectory(@"C:\Users\gawaineo\Desktop\Hackathon\vapp02\W3SVC1078817113");
 
             IISLog psr = new IISLog();
-            psr.ParsingFile(@"C:\Visual Studio\Hackathon\Hackathon\Enterprise_IIS_Logs.txt");
+
+            
+
+            psr.Load(dirList);
+
+            //psr.ParsingFile(@"C:\Visual Studio\Hackathon\Hackathon\Enterprise_IIS_Logs.txt");
 
             Console.WriteLine("\n\nPress Enter to continue...");
             Console.ReadLine();

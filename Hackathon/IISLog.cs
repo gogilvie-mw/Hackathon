@@ -30,6 +30,20 @@ namespace Hackathon
             dirName = directoryName;
         }
 
+        public void Load(ArrayList dirs)
+        {
+            ArrayList files = new ArrayList();
+            foreach (string dir in dirs)
+            {
+                files = FileTool.GetFileNamesFromDirectory(dir);
+                foreach (FileInfo file in files)
+                {
+                    string s = file.Directory + @"\" + file.Name;
+                    ParsingFile(s);
+                }
+            }
+        }
+
 
 
         public void ParsingFile(string fileName)
@@ -43,7 +57,7 @@ namespace Hackathon
 
                     while ((line = sr.ReadLine()) != null)
                     {
-                        if (count > 200)
+                        if (count > 15)
                             break;
 
                         count++;
