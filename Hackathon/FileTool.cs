@@ -26,7 +26,7 @@ namespace Hackathon
             foreach (var fi in di.GetFiles())
             {
                 fileList.Add(fi);
-                Console.WriteLine(fi.Name);
+                //Console.WriteLine(fi.Name);
             }
 
             return fileList;
